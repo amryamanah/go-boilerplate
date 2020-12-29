@@ -56,3 +56,7 @@ func (c *Config) getDBConnStr(dbhost, dbname string) string {
 		dbname,
 	)
 }
+
+func (c *Config) GetApiPort() string {
+	return c.apiPort
+}
