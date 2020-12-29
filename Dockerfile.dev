@@ -16,6 +16,3 @@ RUN go mod download
 # copy source from the host to the working directory inside
 # the container
 COPY . .
-
-# This container exposes API_PORT from .env to the outside world
-EXPOSE ${API_PORT}
