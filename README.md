@@ -1,6 +1,9 @@
 # go-boilerplate
 boilerplate for go API project
 
+### DB Design
+
+https://dbdiagram.io/d/5fec2f3a80d742080a3494e7
 
 ### Migration
  
