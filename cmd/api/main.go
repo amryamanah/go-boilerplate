@@ -3,7 +3,7 @@
 package main
 
 import (
-	"github.com/amryamanah/go-boilerplate/internal/router"
+	"github.com/amryamanah/go-boilerplate/internal/api/router"
 	"github.com/amryamanah/go-boilerplate/pkg/application"
 	"github.com/amryamanah/go-boilerplate/pkg/exithandler"
 	"github.com/amryamanah/go-boilerplate/pkg/logger"

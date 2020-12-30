@@ -60,3 +60,7 @@ func (c *Config) getDBConnStr(dbhost, dbname string) string {
 func (c *Config) GetApiPort() string {
 	return c.apiPort
 }
+
+func (c *Config) GetMigration() string {
+	return c.migrate
+}

@@ -3,8 +3,6 @@ package server
 import (
 	"errors"
 	"fmt"
-	"github.com/amryamanah/go-boilerplate/pkg/logger"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"time"
@@ -34,13 +32,12 @@ func (s *Server) WithErrLogger(l *log.Logger) *Server {
 	return s
 }
 
-func (s *Server) WithRouter(router *mux.Router) *Server {
+func (s *Server) WithRouter(router http.Handler) *Server {
 	s.srv.Handler = router
 	return s
 }
 
 func (s *Server) Start() error {
-	logger.Info.Printf("%+v", s.srv)
 	if len(s.srv.Addr) == 0 {
 		return errors.New("server missing address")
 	}

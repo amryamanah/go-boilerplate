@@ -1,7 +1,7 @@
 package exithandler
 
 import (
-	"log"
+	"github.com/amryamanah/go-boilerplate/pkg/logger"
 	"os"
 	"os/signal"
 	"syscall"
@@ -14,11 +14,11 @@ func Init(cb func()) {
 
 	go func() {
 		sig := <-sigs
-		log.Println("exit reason: ", sig)
+		logger.Info.Println("exit reason: ", sig)
 		terminate <- true
 	}()
 
 	<-terminate
 	cb()
-	log.Print("exiting program")
+	logger.Info.Println("exiting program")
 }
