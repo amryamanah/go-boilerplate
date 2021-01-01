@@ -23,7 +23,7 @@ func main() {
 	}
 
 	log.Printf("[MIGRATE] DBCONNSTRING: %v\n", cfg.GetDBConnStr())
-	m, err := migrate.New("file://internal/db/migration", cfg.GetDBConnStr())
+	m, err := migrate.New("file://internal/domain/migration", cfg.GetDBConnStr())
 	log.Printf("[MIGRATE] RUNNING MIGRATION WITH: %+v\n", m)
 	if err != nil {
 		log.Fatal(err)

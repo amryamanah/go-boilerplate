@@ -1,4 +1,4 @@
-// pkg/db/db.go
+// pkg/domain/domain.go
 
 package db
 

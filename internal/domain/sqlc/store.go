@@ -1,4 +1,4 @@
-package db
+package domain
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-// Store provides all functions to execute db queries and transactions
+// Store provides all functions to execute domain queries and transactions
 type Store struct {
 	dbConn *sql.DB
 	*Queries

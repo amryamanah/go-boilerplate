@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# this script makes sure we have test db created for us
+# this script makes sure we have test domain created for us
 # when docker-compose is run
 set -e
 

@@ -18,7 +18,7 @@ services:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
       - boilerplatevolume:/var/lib/postgresql/data
-      - ./internal/db/scripts:/docker-entrypoint-initdb.d/
+      - ./internal/domain/scripts:/docker-entrypoint-initdb.d/
     networks:
       - boilerplatenetwork
 

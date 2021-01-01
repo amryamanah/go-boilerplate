@@ -1,9 +1,9 @@
 version: "1"
 packages:
-  - name: "db"
-    path: "./internal/db/sqlc"
-    queries: "./internal/db/query/"
-    schema: "./internal/db/migration/"
+  - name: "domain"
+    path: "./internal/domain/sqlc"
+    queries: "./internal/domain/query/"
+    schema: "./internal/domain/migration/"
     engine: "postgresql"
     emit_json_tags: true
     emit_prepared_queries: false
