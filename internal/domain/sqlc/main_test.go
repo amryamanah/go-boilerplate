@@ -2,11 +2,13 @@ package domain
 
 import (
 	"database/sql"
-	"github.com/amryamanah/go-boilerplate/pkg/application"
+	"github.com/amryamanah/go-boilerplate/pkg/config"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"testing"
+
+	_ "github.com/lib/pq"
 )
 
 var testQueries *Queries
@@ -16,14 +18,13 @@ func TestMain(m *testing.M) {
 	if err := godotenv.Load("../../../.env"); err != nil {
 		log.Fatal("failed to load env vars")
 	}
+	cfg := config.Get()
 
-	app, err := application.Get(application.TEST)
+	var err error
+	testDB, err = sql.Open("postgres", cfg.GetTestDBConnStr())
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatal("cannot connect to db:", err)
 	}
-
-	testQueries = New(app.DBConn.Client)
-	testDB = app.DBConn.Client
-
+	testQueries = New(testDB)
 	os.Exit(m.Run())
 }
