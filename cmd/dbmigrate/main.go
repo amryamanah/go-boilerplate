@@ -10,8 +10,11 @@ import (
 )
 
 func main() {
-	godotenv.Load()
+	if err := godotenv.Load(); err != nil {
+		log.Println("failed to load env vars")
+	}
 	cfg := config.Get()
+	log.Printf("[MIGRATE] Config loaded: %+v\n", cfg)
 
 	direction := cfg.GetMigration()
 
@@ -19,7 +22,9 @@ func main() {
 		log.Fatal("-migrate accepts [up, down] values only")
 	}
 
+	log.Printf("[MIGRATE] DBCONNSTRING: %v\n", cfg.GetDBConnStr())
 	m, err := migrate.New("file://internal/db/migration", cfg.GetDBConnStr())
+	log.Printf("[MIGRATE] RUNNING MIGRATION WITH: %+v\n", m)
 	if err != nil {
 		log.Fatal(err)
 	}

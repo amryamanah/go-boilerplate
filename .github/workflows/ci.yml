@@ -7,10 +7,26 @@ on:
     branches: [ simplebank ]
 
 jobs:
-
-  build:
-    name: Build
+  test:
+    name: Test
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: boilerplatetest
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
 
       - name: Set up Go 1.x
@@ -21,6 +37,9 @@ jobs:
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
+
+      - name: Run Migration
+        run: go run cmd/dbmigrate/main.go -dbhost=localhost -dbname=boilerplatetest
 
       - name: Test
         run: make test

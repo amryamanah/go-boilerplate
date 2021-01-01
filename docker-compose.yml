@@ -9,7 +9,7 @@ networks:
     name: boilerplate-network
 
 services:
-  pg:
+  postgres:
     image: postgres:13
     restart: on-failure
     env_file:
@@ -31,7 +31,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - pg
+      - postgres
     volumes:
       - ./:/app
     ports:
