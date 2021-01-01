@@ -1,27 +1,46 @@
 package application
 
 import (
+	"errors"
+	"fmt"
 	"github.com/amryamanah/go-boilerplate/pkg/config"
 	"github.com/amryamanah/go-boilerplate/pkg/db"
 	"log"
 )
 
+type AppEnv string
+
+const (
+	DEV AppEnv = "dev"
+	TEST = "test"
+	PROD = "prod"
+)
+
 type Application struct {
-	DB *db.DB
-	Cfg *config.Config
+	DBConn *db.DB
+	Cfg    *config.Config
 }
 
-func Get() (*Application, error) {
+func Get(kind AppEnv) (*Application, error) {
 	log.Println("Restart")
 	cfg := config.Get()
-	db, err := db.Get(cfg.GetDBConnStr())
+	var dbConnStr string
+	switch kind {
+	case DEV:
+		dbConnStr = cfg.GetDBConnStr()
+	case TEST:
+		dbConnStr = cfg.GetTestDBConnStr()
+	default:
+		return nil, errors.New(fmt.Sprintf("unsupported application environment: %s", kind))
+	}
+	dbConn, err := db.Get(dbConnStr)
 
 	if err != nil {
 		return nil, err
 	}
 
 	return &Application{
-		DB: db,
-		Cfg: cfg,
+		DBConn: dbConn,
+		Cfg:    cfg,
 	}, nil
 }

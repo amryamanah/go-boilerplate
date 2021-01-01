@@ -23,3 +23,7 @@ go run cmd/dbmigrate/main.go \
 -migrate=up \
 -dbname=boilerplatetest \
 -dbhost=localhost
+
+### Connect to PSQL Docker
+
+docker exec -it go-boilerplate_pg_1 psql -U postgres -d boilerplatetest

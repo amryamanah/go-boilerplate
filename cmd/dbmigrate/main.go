@@ -19,20 +19,28 @@ func main() {
 		log.Fatal("-migrate accepts [up, down] values only")
 	}
 
-	m, err := migrate.New("file://db/migrations", cfg.GetDBConnStr())
+	m, err := migrate.New("file://internal/db/migration", cfg.GetDBConnStr())
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	if direction == "up" {
 		if err := m.Up(); err != nil {
-			log.Fatal(err)
+			if err.Error() == "no change"{
+				return
+			} else {
+				log.Fatal(err)
+			}
 		}
 	}
 
 	if direction == "down" {
 		if err := m.Down(); err != nil {
-			log.Fatal(err)
+			if err.Error() == "no change"{
+				return
+			} else {
+				log.Fatal(err)
+			}
 		}
 	}
 }
