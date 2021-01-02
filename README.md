@@ -27,3 +27,7 @@ go run cmd/dbmigrate/main.go \
 ### Connect to PSQL Docker
 
 docker exec -it go-boilerplate_pg_1 psql -U postgres -d boilerplatetest
+
+### Mock Store using gomock package
+
+mockgen -package mockstore -destination internal/store/mock/store.go github.com/amryamanah/go-boilerplate/internal/store/sqlc Store

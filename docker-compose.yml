@@ -12,13 +12,17 @@ services:
   postgres:
     image: postgres:13
     restart: on-failure
-    env_file:
-      - .env
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=boilerplate
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
       - boilerplatevolume:/var/lib/postgresql/data
-      - ./internal/domain/scripts:/docker-entrypoint-initdb.d/
+      - ./internal/store/scripts:/docker-entrypoint-initdb.d/
     networks:
       - boilerplatenetwork
 

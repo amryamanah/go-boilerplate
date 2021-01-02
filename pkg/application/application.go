@@ -1,46 +1,62 @@
 package application
 
 import (
-	"errors"
+	"database/sql"
 	"fmt"
+	store "github.com/amryamanah/go-boilerplate/internal/store/sqlc"
 	"github.com/amryamanah/go-boilerplate/pkg/config"
-	"github.com/amryamanah/go-boilerplate/pkg/db"
+	"github.com/amryamanah/go-boilerplate/pkg/logger"
+	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 	"log"
 )
 
 type AppEnv string
 
 const (
-	DEV AppEnv = "dev"
-	TEST = "test"
-	PROD = "prod"
+	DEV  AppEnv = "dev"
+	TEST        = "test"
+	PROD        = "prod"
 )
 
 type Application struct {
-	DBConn *db.DB
-	Cfg    *config.Config
+	Store  store.Store
+	router *gin.Engine
 }
 
-func Get(kind AppEnv) (*Application, error) {
-	log.Println("Restart")
-	cfg := config.Get()
-	var dbConnStr string
-	switch kind {
-	case DEV:
-		dbConnStr = cfg.GetDBConnStr()
-	case TEST:
-		dbConnStr = cfg.GetTestDBConnStr()
-	default:
-		return nil, errors.New(fmt.Sprintf("unsupported application environment: %s", kind))
-	}
-	dbConn, err := db.Get(dbConnStr)
+func NewApplication() *Application {
+	app := &Application{}
+	router := gin.Default()
 
+	router.POST("/accounts", app.CreateAccount)
+	router.GET("/accounts/:id", app.GetAccount)
+	router.GET("/accounts", app.ListAccount)
+
+	app.router = router
+	return app
+}
+
+func errorResponse(err error) gin.H {
+	return gin.H{"error": err.Error()}
+}
+
+
+
+func (a *Application) Start() error {
+	address := fmt.Sprintf("0.0.0.0:%s", config.Config.GetApiPort())
+	logger.Info.Printf("starting server at %s", address)
+	return a.router.Run(address)
+}
+
+func (a *Application) InitStore() {
+	conn, err := sql.Open("postgres", config.Config.GetDBConnStr())
 	if err != nil {
-		return nil, err
+		log.Fatal("cannot connect to db:", err)
 	}
-
-	return &Application{
-		DBConn: dbConn,
-		Cfg:    cfg,
-	}, nil
+	a.Store = store.NewStore(conn)
 }
+
+func (a *Application) Close() error {
+	return nil
+}
+

@@ -3,42 +3,34 @@
 package main
 
 import (
-	"github.com/amryamanah/go-boilerplate/internal/app/router"
+	"fmt"
 	"github.com/amryamanah/go-boilerplate/pkg/application"
+	"github.com/amryamanah/go-boilerplate/pkg/config"
 	"github.com/amryamanah/go-boilerplate/pkg/exithandler"
 	"github.com/amryamanah/go-boilerplate/pkg/logger"
-	"github.com/amryamanah/go-boilerplate/pkg/server"
-	"github.com/joho/godotenv"
 	"log"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("failed to load env vars")
-	}
-
-	app, err := application.Get(application.DEV)
+	err := config.LoadConfig("./configs")
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatal("cannot load config:", err)
 	}
 
-	srv := server.
-			Get().
-			WithAddr(app.Cfg.GetApiPort()).
-			WithRouter(router.Get()).
-			WithErrLogger(logger.Error)
+	fmt.Printf("[VIPER] Config: %+v\n", config.Config)
+	app := application.NewApplication()
+
+	app.InitStore()
 
 	go func() {
-		logger.Info.Printf("starting server at %s", app.Cfg.GetApiPort())
-		if err := srv.Start(); err != nil {
+		if err := app.Start(); err != nil {
 			logger.Error.Fatal(err.Error())
 		}
 	}()
 
 	exithandler.Init(func() {
-		if err := srv.Close(); err != nil {
+		if err := app.Close(); err != nil {
 			logger.Error.Println(err.Error())
 		}
-		app.DBConn.Close()
 	})
 }

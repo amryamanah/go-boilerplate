@@ -6,7 +6,7 @@ echo "#################### migrating dev db"
 go run cmd/dbmigrate/main.go
 
 echo "#################### migrating test db"
-go run cmd/dbmigrate/main.go -dbname=boilerplatetest
+DB_NAME=boilerplatetest go run cmd/dbmigrate/main.go
 
 echo "#################### downloading CompileDaemon"
 # disable go modules to avoid this package from getting into go.mod

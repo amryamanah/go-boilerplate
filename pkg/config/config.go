@@ -5,62 +5,70 @@ package config
 import (
 	"flag"
 	"fmt"
-	"os"
+	"github.com/spf13/viper"
 )
 
-type Config struct {
-	dbUser     string
-	dbPswd     string
-	dbHost     string
-	dbPort     string
-	dbName     string
+var (
+	Config = config{}
+)
+
+type config struct {
+	DBUser     string `mapstructure:"DB_USER"`
+	DBPass     string `mapstructure:"DB_PASS"`
+	DBHost     string `mapstructure:"DB_HOST"`
+	DBPort     string `mapstructure:"DB_PORT"`
+	DBName     string `mapstructure:"DB_NAME"`
+	ApiPort    string `mapstructure:"API_PORT"`
+	Migrate    string
 	testDBHost string
 	testDBName string
-	apiPort    string
-	migrate    string
 }
 
-func Get() *Config {
-	conf := &Config{}
+func LoadConfig(path string) (err error) {
+	viper.AddConfigPath(path)
+	viper.SetConfigName("app")
+	viper.SetConfigType("env")
 
-	flag.StringVar(&conf.dbUser, "dbuser", os.Getenv("POSTGRES_USER"), "DBConn user name")
-	flag.StringVar(&conf.dbPswd, "dbpswd", os.Getenv("POSTGRES_PASSWORD"), "DBConn pass")
-	flag.StringVar(&conf.dbPort, "dbport", os.Getenv("POSTGRES_PORT"), "DBConn port")
-	flag.StringVar(&conf.dbHost, "dbhost", os.Getenv("POSTGRES_HOST"), "DBConn host")
-	flag.StringVar(&conf.dbName, "dbname", os.Getenv("POSTGRES_DB"), "DBConn name")
-	flag.StringVar(&conf.testDBHost, "testdbhost", os.Getenv("TEST_DB_HOST"), "test database host")
-	flag.StringVar(&conf.testDBName, "testdbname", os.Getenv("TEST_DB_NAME"), "test database name")
-	flag.StringVar(&conf.apiPort, "apiPort", os.Getenv("API_PORT"), "API Port")
-	flag.StringVar(&conf.migrate, "migrate", "up", "specify if we should be migrating DBConn 'up' or 'down'")
+	viper.AutomaticEnv()
+
+	err = viper.ReadInConfig()
+	if err != nil {
+		return
+	}
+
+	err = viper.Unmarshal(&Config)
+
+	flag.StringVar(&Config.Migrate,
+		"Migrate", "up",
+		"specify if we should be migrating DBConn 'up' or 'down'")
 
 	flag.Parse()
-
-	return conf
+	return
 }
 
-func (c *Config) GetDBConnStr() string {
-	return c.getDBConnStr(c.dbHost, c.dbName)
+func (c *config) GetDBConnStr() string {
+	return c.getDBConnStr(c.DBHost, c.DBName)
 }
 
-func (c *Config) GetTestDBConnStr() string {
+func (c *config) GetTestDBConnStr() string {
 	return c.getDBConnStr(c.testDBHost, c.testDBName)
 }
 
-func (c *Config) getDBConnStr(dbhost, dbname string) string {
+func (c *config) getDBConnStr(dbhost, dbname string) string {
 	return fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		c.dbUser,
-		c.dbPswd,
+		c.DBUser,
+		c.DBPass,
 		dbhost,
-		c.dbPort,
+		c.DBPort,
 		dbname,
 	)
 }
 
-func (c *Config) GetApiPort() string {
-	return c.apiPort
+func (c *config) GetApiPort() string {
+	return c.ApiPort
 }
 
-func (c *Config) GetMigration() string {
-	return c.migrate
+func (c *config) GetMigration() string {
+	return c.Migrate
 }

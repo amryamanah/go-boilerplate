@@ -1,29 +1,29 @@
 package main
 
 import (
+	"fmt"
 	"github.com/amryamanah/go-boilerplate/pkg/config"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/joho/godotenv"
 	"log"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("failed to load env vars")
+	err := config.LoadConfig("./configs")
+	if err != nil {
+		log.Fatal("cannot load config:", err)
 	}
-	cfg := config.Get()
-	log.Printf("[MIGRATE] Config loaded: %+v\n", cfg)
+	fmt.Printf("[VIPER] Config: %+v\n", config.Config)
 
-	direction := cfg.GetMigration()
+	direction := config.Config.Migrate
 
 	if direction != "down" && direction != "up" {
 		log.Fatal("-migrate accepts [up, down] values only")
 	}
 
-	log.Printf("[MIGRATE] DBCONNSTRING: %v\n", cfg.GetDBConnStr())
-	m, err := migrate.New("file://internal/domain/migration", cfg.GetDBConnStr())
+	log.Printf("[MIGRATE] DBCONNSTRING: %v\n", config.Config.GetDBConnStr())
+	m, err := migrate.New("file://internal/store/migration", config.Config.GetDBConnStr())
 	log.Printf("[MIGRATE] RUNNING MIGRATION WITH: %+v\n", m)
 	if err != nil {
 		log.Fatal(err)
@@ -31,7 +31,7 @@ func main() {
 
 	if direction == "up" {
 		if err := m.Up(); err != nil {
-			if err.Error() == "no change"{
+			if err.Error() == "no change" {
 				return
 			} else {
 				log.Fatal(err)
@@ -41,7 +41,7 @@ func main() {
 
 	if direction == "down" {
 		if err := m.Down(); err != nil {
-			if err.Error() == "no change"{
+			if err.Error() == "no change" {
 				return
 			} else {
 				log.Fatal(err)
