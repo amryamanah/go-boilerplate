@@ -19,7 +19,7 @@ services:
       - POSTGRES_HOST=postgres
       - POSTGRES_DB=boilerplate
     ports:
-      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+      - "5432:5432"
     volumes:
       - boilerplatevolume:/var/lib/postgresql/data
       - ./internal/store/scripts:/docker-entrypoint-initdb.d/
@@ -31,15 +31,15 @@ services:
       context: .
       dockerfile: Dockerfile.dev
       args:
-        API_PORT: ${API_PORT}
+        API_PORT: "8080"
     env_file:
-      - .env
+      - ./configs/app.env
     depends_on:
       - postgres
     volumes:
       - ./:/app
     ports:
-      - "${API_PORT}:${API_PORT}"
+      - "8080:8080"
     networks:
       - boilerplatenetwork
     entrypoint: [ "/bin/bash", "./scripts/entrypoint.dev.sh" ]
