@@ -24,8 +24,8 @@ type Application struct {
 	router *gin.Engine
 }
 
-func NewApplication() *Application {
-	app := &Application{}
+func NewApplication(store store.Store) *Application {
+	app := &Application{Store: store}
 	router := gin.Default()
 
 	router.POST("/accounts", app.CreateAccount)

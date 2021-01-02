@@ -3,11 +3,14 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	store "github.com/amryamanah/go-boilerplate/internal/store/sqlc"
 	"github.com/amryamanah/go-boilerplate/pkg/application"
 	"github.com/amryamanah/go-boilerplate/pkg/config"
 	"github.com/amryamanah/go-boilerplate/pkg/exithandler"
 	"github.com/amryamanah/go-boilerplate/pkg/logger"
+	_ "github.com/lib/pq"
 	"log"
 )
 
@@ -18,9 +21,14 @@ func main() {
 	}
 
 	fmt.Printf("[VIPER] Config: %+v\n", config.Config)
-	app := application.NewApplication()
 
-	app.InitStore()
+	conn, err := sql.Open("postgres", config.Config.GetDBConnStr())
+	if err != nil {
+		log.Fatal("cannot connect to db:", err)
+	}
+	storeInst := store.NewStore(conn)
+
+	app := application.NewApplication(storeInst)
 
 	go func() {
 		if err := app.Start(); err != nil {
