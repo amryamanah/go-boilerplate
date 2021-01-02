@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run Migration
-        run: go run cmd/dbmigrate/main.go -dbhost=localhost -dbname=boilerplatetest
+        run: DB_NAME=boilerplatetest DB_HOST=localhost  go run cmd/dbmigrate/main.go
 
       - name: Test
         run: make test

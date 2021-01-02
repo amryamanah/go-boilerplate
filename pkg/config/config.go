@@ -20,8 +20,6 @@ type config struct {
 	DBName     string `mapstructure:"DB_NAME"`
 	ApiPort    string `mapstructure:"API_PORT"`
 	Migrate    string
-	testDBHost string
-	testDBName string
 }
 
 func LoadConfig(path string) (err error) {
@@ -48,10 +46,6 @@ func LoadConfig(path string) (err error) {
 
 func (c *config) GetDBConnStr() string {
 	return c.getDBConnStr(c.DBHost, c.DBName)
-}
-
-func (c *config) GetTestDBConnStr() string {
-	return c.getDBConnStr(c.testDBHost, c.testDBName)
 }
 
 func (c *config) getDBConnStr(dbhost, dbname string) string {
