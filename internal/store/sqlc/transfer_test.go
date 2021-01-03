@@ -2,7 +2,7 @@ package store
 
 import (
 	"context"
-	"github.com/amryamanah/go-boilerplate/pkg/test_util"
+	"github.com/amryamanah/go-boilerplate/pkg/util"
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
@@ -12,7 +12,7 @@ func createRandomTransfer(t *testing.T, fromAccount, toAccount Account) Transfer
 	arg := CreateTransferParams{
 		FromAccountID: fromAccount.ID,
 		ToAccountID:   toAccount.ID,
-		Amount:        test_util.RandomMoney(),
+		Amount:        util.RandomMoney(),
 	}
 
 	transfer, err := testQueries.CreateTransfer(context.Background(), arg)

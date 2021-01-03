@@ -3,7 +3,7 @@ package store
 import (
 	"context"
 	"database/sql"
-	"github.com/amryamanah/go-boilerplate/pkg/test_util"
+	"github.com/amryamanah/go-boilerplate/pkg/util"
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
@@ -11,9 +11,9 @@ import (
 
 func createRandomAccount(t *testing.T) Account {
 	arg := CreateAccountParams{
-		Owner:    test_util.RandomOwner(),
-		Balance:  test_util.RandomMoney(),
-		Currency: test_util.RandomCurrency(),
+		Owner:    util.RandomOwner(),
+		Balance:  util.RandomMoney(),
+		Currency: util.RandomCurrency(),
 	}
 
 	account, err := testQueries.CreateAccount(context.Background(), arg)
@@ -52,7 +52,7 @@ func TestQueries_UpdateAccount(t *testing.T) {
 
 	arg := UpdateAccountParams{
 		ID:      account1.ID,
-		Balance: test_util.RandomMoney(),
+		Balance: util.RandomMoney(),
 	}
 
 	account2, err := testQueries.UpdateAccount(context.Background(), arg)

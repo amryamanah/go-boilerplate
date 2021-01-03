@@ -2,7 +2,7 @@ package store
 
 import (
 	"context"
-	"github.com/amryamanah/go-boilerplate/pkg/test_util"
+	"github.com/amryamanah/go-boilerplate/pkg/util"
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
@@ -11,7 +11,7 @@ import (
 func createRandomEntry(t *testing.T, account Account) Entry {
 	arg := CreateEntryParams{
 		AccountID: account.ID,
-		Amount:    test_util.RandomMoney(),
+		Amount:    util.RandomMoney(),
 	}
 
 	entry, err := testQueries.CreateEntry(context.Background(), arg)

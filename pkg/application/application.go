@@ -6,6 +6,8 @@ import (
 	"github.com/amryamanah/go-boilerplate/pkg/config"
 	"github.com/amryamanah/go-boilerplate/pkg/logger"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 	_ "github.com/lib/pq"
 )
 
@@ -18,9 +20,14 @@ func NewApplication(store store.Store) *Application {
 	app := &Application{Store: store}
 	router := gin.Default()
 
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterValidation("currency", validCurrency)
+	}
+
 	router.POST("/accounts", app.CreateAccount)
 	router.GET("/accounts/:id", app.GetAccount)
 	router.GET("/accounts", app.ListAccount)
+	router.POST("/transfers", app.CreateTransfer)
 
 	app.router = router
 	return app

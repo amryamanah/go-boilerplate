@@ -7,7 +7,7 @@ import (
 	"fmt"
 	mockstore "github.com/amryamanah/go-boilerplate/internal/store/mock"
 	store "github.com/amryamanah/go-boilerplate/internal/store/sqlc"
-	"github.com/amryamanah/go-boilerplate/pkg/test_util"
+	"github.com/amryamanah/go-boilerplate/pkg/util"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
@@ -18,10 +18,10 @@ import (
 
 func randomAccount() store.Account {
 	return store.Account{
-		ID: test_util.RandomInt(1, 1000),
-		Owner: test_util.RandomOwner(),
-		Balance: test_util.RandomMoney(),
-		Currency: test_util.RandomCurrency(),
+		ID: util.RandomInt(1, 1000),
+		Owner: util.RandomOwner(),
+		Balance: util.RandomMoney(),
+		Currency: util.RandomCurrency(),
 	}
 }
 
