@@ -24,6 +24,7 @@ func NewApplication(store store.Store) *Application {
 		v.RegisterValidation("currency", validCurrency)
 	}
 
+	router.POST("/users", app.CreateUser)
 	router.POST("/accounts", app.CreateAccount)
 	router.GET("/accounts/:id", app.GetAccount)
 	router.GET("/accounts", app.ListAccount)

@@ -37,7 +37,7 @@ func LoadConfig(path string) (err error) {
 	err = viper.Unmarshal(&Config)
 
 	flag.StringVar(&Config.Migrate,
-		"Migrate", "up",
+		"migrate", "up",
 		"specify if we should be migrating DBConn 'up' or 'down'")
 
 	flag.Parse()
