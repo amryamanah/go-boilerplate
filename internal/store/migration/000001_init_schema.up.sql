@@ -1,10 +1,21 @@
+CREATE TABLE "users"
+(
+    "id"                  bigserial PRIMARY KEY,
+    "full_name"           varchar,
+    "email"               varchar UNIQUE NOT NULL,
+    "phone"               varchar UNIQUE,
+    "hashed_password"     varchar        NOT NULL,
+    "password_changed_at" timestamptz    NOT NULL DEFAULT '0001-01-01 00:00:00Z',
+    "created_at"          timestamptz    NOT NULL DEFAULT (now() at time zone 'utc')
+);
+
 CREATE TABLE "accounts"
 (
     "id"         bigserial PRIMARY KEY,
-    "owner"      varchar     NOT NULL,
+    "owner"      bigint      NOT NULL,
     "balance"    bigint      NOT NULL,
     "currency"   varchar     NOT NULL,
-    "created_at" timestamptz NOT NULL DEFAULT (now())
+    "created_at" timestamptz NOT NULL DEFAULT (now() at time zone 'utc')
 );
 
 CREATE TABLE "entries"
@@ -12,7 +23,7 @@ CREATE TABLE "entries"
     "id"         bigserial PRIMARY KEY,
     "account_id" bigint      NOT NULL,
     "amount"     bigint      NOT NULL,
-    "created_at" timestamptz NOT NULL DEFAULT (now())
+    "created_at" timestamptz NOT NULL DEFAULT (now() at time zone 'utc')
 );
 
 CREATE TABLE "transfers"
@@ -21,8 +32,11 @@ CREATE TABLE "transfers"
     "from_account_id" bigint      NOT NULL,
     "to_account_id"   bigint      NOT NULL,
     "amount"          bigint      NOT NULL,
-    "created_at"      timestamptz NOT NULL DEFAULT (now())
+    "created_at"      timestamptz NOT NULL DEFAULT (now() at time zone 'utc')
 );
+
+ALTER TABLE "accounts"
+    ADD FOREIGN KEY ("owner") REFERENCES "users" ("id");
 
 ALTER TABLE "entries"
     ADD FOREIGN KEY ("account_id") REFERENCES "accounts" ("id");
@@ -34,6 +48,8 @@ ALTER TABLE "transfers"
     ADD FOREIGN KEY ("to_account_id") REFERENCES "accounts" ("id");
 
 CREATE INDEX ON "accounts" ("owner");
+
+CREATE UNIQUE INDEX ON "accounts" ("owner", "currency");
 
 CREATE INDEX ON "entries" ("account_id");
 

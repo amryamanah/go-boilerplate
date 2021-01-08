@@ -5,6 +5,7 @@ import (
 	store "github.com/amryamanah/go-boilerplate/internal/store/sqlc"
 	"github.com/amryamanah/go-boilerplate/pkg/config"
 	"github.com/amryamanah/go-boilerplate/pkg/logger"
+	"github.com/amryamanah/go-boilerplate/pkg/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -13,7 +14,7 @@ import (
 
 type Application struct {
 	Store  store.Store
-	router *gin.Engine
+	Router *gin.Engine
 }
 
 func NewApplication(store store.Store) *Application {
@@ -24,24 +25,30 @@ func NewApplication(store store.Store) *Application {
 		v.RegisterValidation("currency", validCurrency)
 	}
 
-	router.POST("/users", app.CreateUser)
+	router.POST("/login", app.Login)
+	router.POST("/signup", app.SignUp)
+	router.POST("/logout", app.Logout)
+	router.POST("/token/refresh", app.Refresh)
+
+	router.POST("/users", middleware.TokenAuthMiddleware(), app.CreateUser)
+	router.GET("/me", middleware.TokenAuthMiddleware(), app.GetMe)
 	router.POST("/accounts", app.CreateAccount)
 	router.GET("/accounts/:id", app.GetAccount)
 	router.GET("/accounts", app.ListAccount)
 	router.POST("/transfers", app.CreateTransfer)
 
-	app.router = router
+	app.Router = router
 	return app
 }
 
-func errorResponse(err error) gin.H {
+func ErrorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }
 
 func (a *Application) Start() error {
 	address := fmt.Sprintf("0.0.0.0:%s", config.Config.GetApiPort())
 	logger.Info.Printf("starting server at %s", address)
-	return a.router.Run(address)
+	return a.Router.Run(address)
 }
 
 func (a *Application) Close() error {

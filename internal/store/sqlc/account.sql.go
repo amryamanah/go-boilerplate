@@ -43,7 +43,7 @@ INSERT INTO accounts (
 `
 
 type CreateAccountParams struct {
-	Owner    string `json:"owner"`
+	Owner    int64  `json:"owner"`
 	Balance  int64  `json:"balance"`
 	Currency string `json:"currency"`
 }

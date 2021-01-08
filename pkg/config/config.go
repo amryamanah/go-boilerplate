@@ -19,6 +19,8 @@ type config struct {
 	DBPort     string `mapstructure:"DB_PORT"`
 	DBName     string `mapstructure:"DB_NAME"`
 	ApiPort    string `mapstructure:"API_PORT"`
+	AppAccessSecret  string `mapstructure:"APP_ACCESS_SECRET"`
+	AppRefreshSecret  string `mapstructure:"APP_REFRESH_SECRET"`
 	Migrate    string
 }
 

@@ -3,12 +3,13 @@
 package store
 
 import (
+	"database/sql"
 	"time"
 )
 
 type Account struct {
 	ID        int64     `json:"id"`
-	Owner     string    `json:"owner"`
+	Owner     int64     `json:"owner"`
 	Balance   int64     `json:"balance"`
 	Currency  string    `json:"currency"`
 	CreatedAt time.Time `json:"created_at"`
@@ -32,10 +33,11 @@ type Transfer struct {
 }
 
 type User struct {
-	Username          string    `json:"username"`
-	HashedPassword    string    `json:"hashed_password"`
-	FullName          string    `json:"full_name"`
-	Email             string    `json:"email"`
-	PasswordChangedAt time.Time `json:"password_changed_at"`
-	CreatedAt         time.Time `json:"created_at"`
+	ID                int64          `json:"id"`
+	FullName          sql.NullString `json:"full_name"`
+	Email             string         `json:"email"`
+	Phone             sql.NullString `json:"phone"`
+	HashedPassword    string         `json:"hashed_password"`
+	PasswordChangedAt time.Time      `json:"password_changed_at"`
+	CreatedAt         time.Time      `json:"created_at"`
 }

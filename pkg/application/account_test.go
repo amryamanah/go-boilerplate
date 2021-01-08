@@ -8,6 +8,7 @@ import (
 	mockstore "github.com/amryamanah/go-boilerplate/internal/store/mock"
 	store "github.com/amryamanah/go-boilerplate/internal/store/sqlc"
 	"github.com/amryamanah/go-boilerplate/pkg/util"
+	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
@@ -19,7 +20,7 @@ import (
 func randomAccount() store.Account {
 	return store.Account{
 		ID: util.RandomInt(1, 1000),
-		Owner: util.RandomOwner(),
+		Owner: 1,
 		Balance: util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
@@ -115,8 +116,101 @@ func TestGetAccountAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
-			testApp.router.ServeHTTP(recorder, request)
+			testApp.Router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
 	}
 }
+
+func TestCreateAccountAPI(t *testing.T) {
+	account := randomAccount()
+
+	testCases := []struct{
+		name string
+		body gin.H
+		buildStubs func(store *mockstore.MockStore)
+		checkResponse func(recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "OK",
+			body: gin.H{
+				"owner": account.Owner,
+				"currency": account.Currency,
+			},
+			buildStubs: func(mockStore *mockstore.MockStore) {
+				arg := store.CreateAccountParams{
+					Owner:    account.Owner,
+					Currency:  account.Currency,
+					Balance: 0,
+				}
+
+				mockStore.EXPECT().
+					CreateAccount(gomock.Any(), gomock.Eq(arg)).
+					Times(1).
+					Return(account, nil)
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				requireBodyMatchAccount(t, recorder.Body, account)
+			},
+		},
+		{
+			name: "InvalidCurrency",
+			body: gin.H{
+				"owner": account.Owner,
+				"currency": "invalid",
+			},
+			buildStubs: func(mockStore *mockstore.MockStore) {
+				mockStore.EXPECT().
+					CreateAccount(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name: "InvalidOwner",
+			body: gin.H{
+				"owner": "",
+				"currency": account.Currency,
+			},
+			buildStubs: func(mockStore *mockstore.MockStore) {
+				mockStore.EXPECT().
+					CreateAccount(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockStore := mockstore.NewMockStore(ctrl)
+			tc.buildStubs(mockStore)
+
+			app := NewApplication(mockStore)
+			recorder := httptest.NewRecorder()
+
+			// Marshal body data to JSON
+			data, err := json.Marshal(tc.body)
+			require.NoError(t, err)
+
+			url := "/accounts"
+			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
+			require.NoError(t, err)
+
+			app.Router.ServeHTTP(recorder, request)
+			tc.checkResponse(recorder)
+		})
+	}
+}
+
+

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	store "github.com/amryamanah/go-boilerplate/internal/store/sqlc"
 	"github.com/amryamanah/go-boilerplate/pkg/application"
+	"github.com/amryamanah/go-boilerplate/pkg/client"
 	"github.com/amryamanah/go-boilerplate/pkg/config"
 	"github.com/amryamanah/go-boilerplate/pkg/exithandler"
 	"github.com/amryamanah/go-boilerplate/pkg/logger"
@@ -21,6 +22,8 @@ func main() {
 	}
 
 	fmt.Printf("[VIPER] Config: %+v\n", config.Config)
+
+	client.InitRedis()
 
 	conn, err := sql.Open("postgres", config.Config.GetDBConnStr())
 	if err != nil {

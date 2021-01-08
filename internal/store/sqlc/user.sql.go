@@ -5,59 +5,102 @@ package store
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users
 (
-    username,
-    hashed_password,
+    email,
+    phone,
     full_name,
-    email
+    hashed_password
 ) VALUES
 ( $1, $2, $3, $4 )
-RETURNING username, hashed_password, full_name, email, password_changed_at, created_at
+RETURNING id, full_name, email, phone, hashed_password, password_changed_at, created_at
 `
 
 type CreateUserParams struct {
-	Username       string `json:"username"`
-	HashedPassword string `json:"hashed_password"`
-	FullName       string `json:"full_name"`
-	Email          string `json:"email"`
+	Email          string         `json:"email"`
+	Phone          sql.NullString `json:"phone"`
+	FullName       sql.NullString `json:"full_name"`
+	HashedPassword string         `json:"hashed_password"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, createUser,
-		arg.Username,
-		arg.HashedPassword,
-		arg.FullName,
 		arg.Email,
+		arg.Phone,
+		arg.FullName,
+		arg.HashedPassword,
 	)
 	var i User
 	err := row.Scan(
-		&i.Username,
-		&i.HashedPassword,
+		&i.ID,
 		&i.FullName,
 		&i.Email,
+		&i.Phone,
+		&i.HashedPassword,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
-const getUser = `-- name: GetUser :one
-SELECT username, hashed_password, full_name, email, password_changed_at, created_at FROM users
-WHERE username = $1 LIMIT 1
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, full_name, email, phone, hashed_password, password_changed_at, created_at FROM users
+WHERE email = $1 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, username)
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
 	var i User
 	err := row.Scan(
-		&i.Username,
-		&i.HashedPassword,
+		&i.ID,
 		&i.FullName,
 		&i.Email,
+		&i.Phone,
+		&i.HashedPassword,
+		&i.PasswordChangedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getUserByID = `-- name: GetUserByID :one
+SELECT id, full_name, email, phone, hashed_password, password_changed_at, created_at FROM users
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, id int64) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByID, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.FullName,
+		&i.Email,
+		&i.Phone,
+		&i.HashedPassword,
+		&i.PasswordChangedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getUserByPhone = `-- name: GetUserByPhone :one
+SELECT id, full_name, email, phone, hashed_password, password_changed_at, created_at FROM users
+WHERE phone = $1 LIMIT 1
+`
+
+func (q *Queries) GetUserByPhone(ctx context.Context, phone sql.NullString) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByPhone, phone)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.FullName,
+		&i.Email,
+		&i.Phone,
+		&i.HashedPassword,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
 	)

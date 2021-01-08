@@ -28,6 +28,10 @@ go run cmd/dbmigrate/main.go \
 
 docker exec -it go-boilerplate_pg_1 psql -U postgres -d boilerplatetest
 
+### Connect to Redis
+
+docker exec -it go-boilerplate_redis_1 redis-cli
+
 ### Mock Store using gomock package
 
 mockgen -package mockstore -destination internal/store/mock/store.go github.com/amryamanah/go-boilerplate/internal/store/sqlc Store
