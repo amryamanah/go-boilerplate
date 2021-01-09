@@ -17,25 +17,6 @@ import (
 	"testing"
 )
 
-func randomAccount() store.Account {
-	return store.Account{
-		ID: util.RandomInt(1, 1000),
-		Owner: 1,
-		Balance: util.RandomMoney(),
-		Currency: util.RandomCurrency(),
-	}
-}
-
-func requireBodyMatchAccount(t *testing.T, body *bytes.Buffer, account store.Account) {
-	data, err := ioutil.ReadAll(body)
-	require.NoError(t, err)
-
-	var gotAccount store.Account
-	err = json.Unmarshal(data, &gotAccount)
-	require.NoError(t, err)
-	require.Equal(t, account, gotAccount)
-}
-
 func TestGetAccountAPI(t *testing.T) {
 	account := randomAccount()
 
@@ -128,7 +109,7 @@ func TestCreateAccountAPI(t *testing.T) {
 	testCases := []struct{
 		name string
 		body gin.H
-		buildStubs func(store *mockstore.MockStore)
+		buildStubs func(mockStore *mockstore.MockStore)
 		checkResponse func(recorder *httptest.ResponseRecorder)
 	}{
 		{
@@ -211,6 +192,150 @@ func TestCreateAccountAPI(t *testing.T) {
 			tc.checkResponse(recorder)
 		})
 	}
+}
+
+func TestListAccountAPI(t *testing.T) {
+	n := 5
+	accounts := make([]store.Account, 5)
+	for i := 0; i < n; i++ {
+		accounts[i] = randomAccount()
+	}
+
+	type Query struct {
+		pageID int
+		pageSize int
+	}
+
+	testCases := []struct{
+		name string
+		query Query
+		buildStubs func(mockStore *mockstore.MockStore)
+		checkResponse func(recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "OK",
+			query: Query{
+				pageID:   1,
+				pageSize: n,
+			},
+			buildStubs: func(mockStore *mockstore.MockStore) {
+				arg := store.ListAccountsParams{
+					Limit: int32(n),
+					Offset: 0,
+				}
+
+				mockStore.EXPECT().
+					ListAccounts(gomock.Any(), gomock.Eq(arg)).
+					Times(1).
+					Return(accounts, nil)
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				requireBodyMatchAccounts(t, recorder.Body, accounts)
+			},
+		},
+		{
+			name: "InternalError",
+			query: Query{
+				pageID:   1,
+				pageSize: n,
+			},
+			buildStubs: func(mockStore *mockstore.MockStore) {
+				mockStore.EXPECT().
+					ListAccounts(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return([]store.Account{}, sql.ErrConnDone)
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+		{
+			name: "InvalidPageID",
+			query: Query{
+				pageID:   -1,
+				pageSize: n,
+			},
+			buildStubs: func(mockStore *mockstore.MockStore) {
+				mockStore.EXPECT().ListAccounts(gomock.Any(), gomock.Any()).Times(0)
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name: "InvalidPageID",
+			query: Query{
+				pageID:   1,
+				pageSize: 100000,
+			},
+			buildStubs: func(mockStore *mockstore.MockStore) {
+				mockStore.EXPECT().
+					ListAccounts(gomock.Any(), gomock.Any()).Times(0)
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockStore := mockstore.NewMockStore(ctrl)
+			tc.buildStubs(mockStore)
+
+			app := NewApplication(mockStore)
+			recorder := httptest.NewRecorder()
+
+			url := "/accounts"
+			request, err := http.NewRequest(http.MethodGet, url, nil)
+			require.NoError(t, err)
+
+			// Add query parameters to request URL
+			q := request.URL.Query()
+			q.Add("page_id", fmt.Sprintf("%d", tc.query.pageID))
+			q.Add("page_size", fmt.Sprintf("%d", tc.query.pageSize))
+			request.URL.RawQuery = q.Encode()
+
+			app.Router.ServeHTTP(recorder, request)
+			tc.checkResponse(recorder)
+		})
+	}
+}
+
+
+func randomAccount() store.Account {
+	return store.Account{
+		ID: util.RandomInt(1, 1000),
+		Owner: 1,
+		Balance: util.RandomMoney(),
+		Currency: util.RandomCurrency(),
+	}
+}
+
+func requireBodyMatchAccount(t *testing.T, body *bytes.Buffer, account store.Account) {
+	data, err := ioutil.ReadAll(body)
+	require.NoError(t, err)
+
+	var gotAccount store.Account
+	err = json.Unmarshal(data, &gotAccount)
+	require.NoError(t, err)
+	require.Equal(t, account, gotAccount)
+}
+
+func requireBodyMatchAccounts(t *testing.T, body *bytes.Buffer, accounts []store.Account)  {
+	data, err := ioutil.ReadAll(body)
+	require.NoError(t, err)
+
+	var gotAccounts []store.Account
+	err = json.Unmarshal(data, &gotAccounts)
+	require.NoError(t, err)
+	require.Equal(t, accounts, gotAccounts)
 }
 
 
