@@ -2,21 +2,24 @@ package application
 
 import (
 	"fmt"
+
 	store "github.com/amryamanah/go-boilerplate/internal/store/sqlc"
+
 	"github.com/amryamanah/go-boilerplate/pkg/config"
 	"github.com/amryamanah/go-boilerplate/pkg/logger"
 	"github.com/amryamanah/go-boilerplate/pkg/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
-	_ "github.com/lib/pq"
 )
 
+// Application struct holding apps component
 type Application struct {
 	Store  store.Store
 	Router *gin.Engine
 }
 
+// NewApplication create new Application
 func NewApplication(store store.Store) *Application {
 	app := &Application{Store: store}
 	router := gin.Default()
@@ -41,17 +44,19 @@ func NewApplication(store store.Store) *Application {
 	return app
 }
 
+// ErrorResponse general error response
 func ErrorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }
 
+// Start the Application
 func (a *Application) Start() error {
 	address := fmt.Sprintf("0.0.0.0:%s", config.Config.GetApiPort())
 	logger.Info.Printf("starting server at %s", address)
 	return a.Router.Run(address)
 }
 
+// Close the Application
 func (a *Application) Close() error {
 	return nil
 }
-

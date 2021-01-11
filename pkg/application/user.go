@@ -3,13 +3,14 @@ package application
 import (
 	"database/sql"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/amryamanah/go-boilerplate/internal/auth"
 	store "github.com/amryamanah/go-boilerplate/internal/store/sqlc"
 	"github.com/amryamanah/go-boilerplate/pkg/util"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
-	"net/http"
-	"time"
 )
 
 type createUserRequest struct {
@@ -20,7 +21,7 @@ type createUserRequest struct {
 }
 
 type createUserResponse struct {
-	Id                int64     `json:"id"`
+	ID                int64     `json:"id"`
 	Email             string    `json:"email"`
 	Phone             string    `json:"phone"`
 	FullName          string    `json:"full_name"`
@@ -28,6 +29,7 @@ type createUserResponse struct {
 	CreatedAt         time.Time `json:"created_at"`
 }
 
+// CreateUser create new user API
 func (a *Application) CreateUser(ctx *gin.Context) {
 	var req createUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -42,9 +44,8 @@ func (a *Application) CreateUser(ctx *gin.Context) {
 	}
 	fmt.Println(req)
 
-
 	arg := store.CreateUserParams{
-		Email: req.Email,
+		Email:          req.Email,
 		HashedPassword: hashedPassword,
 	}
 	if req.FullName != "" {
@@ -75,7 +76,7 @@ func (a *Application) CreateUser(ctx *gin.Context) {
 	}
 
 	rsp := createUserResponse{
-		Id:                user.ID,
+		ID:                user.ID,
 		FullName:          user.FullName.String,
 		Email:             user.Email,
 		Phone:             user.Phone.String,
@@ -86,6 +87,7 @@ func (a *Application) CreateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, rsp)
 }
 
+// GetMe api to get info on authenticated user
 func (a *Application) GetMe(ctx *gin.Context) {
 	tokenAuth, err := auth.ExtractTokenMetadata(ctx.Request)
 	if err != nil {
@@ -93,13 +95,13 @@ func (a *Application) GetMe(ctx *gin.Context) {
 		return
 	}
 
-	userId, err := auth.FetchAuth(ctx, tokenAuth)
+	userID, err := auth.FetchAuth(ctx, tokenAuth)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, ErrorResponse(err))
 		return
 	}
-	fmt.Printf("tokenAuth: %+v , userId: %v \n", tokenAuth, userId)
-	user, err := a.Store.GetUserByID(ctx, userId)
+	fmt.Printf("tokenAuth: %+v , userId: %v \n", tokenAuth, userID)
+	user, err := a.Store.GetUserByID(ctx, userID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, ErrorResponse(err))
@@ -112,6 +114,7 @@ func (a *Application) GetMe(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
+// Logout endpoint to delete auth token
 func (a *Application) Logout(ctx *gin.Context) {
 	au, err := auth.ExtractTokenMetadata(ctx.Request)
 	if err != nil {

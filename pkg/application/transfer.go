@@ -3,9 +3,10 @@ package application
 import (
 	"database/sql"
 	"fmt"
+	"net/http"
+
 	store "github.com/amryamanah/go-boilerplate/internal/store/sqlc"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type transferRequest struct {
@@ -15,6 +16,7 @@ type transferRequest struct {
 	Currency      string `json:"currency" binding:"required,currency"`
 }
 
+// CreateTransfer transfer from one account to anouther account
 func (a *Application) CreateTransfer(ctx *gin.Context) {
 	var req transferRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
