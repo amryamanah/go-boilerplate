@@ -69,15 +69,19 @@ func (a *Application) Login(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp)
 }
 
+type refreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
 // Refresh return new access and refresh token based on existing refresh token
 func (a *Application) Refresh(ctx *gin.Context) {
-	mapToken := map[string]string{}
-	if err := ctx.ShouldBindJSON(&mapToken); err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, err.Error())
+	var req refreshTokenRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, ErrorResponse(errors.New("invalid_json")))
 		return
 	}
 
-	refreshToken := mapToken["refresh_token"]
+	refreshToken := req.RefreshToken
 
 	//verify the token
 	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {

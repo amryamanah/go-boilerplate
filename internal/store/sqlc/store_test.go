@@ -3,8 +3,9 @@ package store
 import (
 	"context"
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 // https://dev.to/techschoolguru/how-to-avoid-deadlock-in-db-transaction-queries-order-matter-oh7
@@ -29,8 +30,8 @@ func TestTransferTxDeadlock(t *testing.T) {
 			toAccountID = account1.ID
 		}
 
-		go func() {
-			txName := fmt.Sprintf("tx %d", i+1)
+		go func(counter int) {
+			txName := fmt.Sprintf("tx %d", counter+1)
 			ctx := context.WithValue(context.Background(), txKey, txName)
 			_, err := store.TransferTx(ctx, TransferTxParams{
 				FromAccountID: fromAccountID,
@@ -39,7 +40,7 @@ func TestTransferTxDeadlock(t *testing.T) {
 			})
 
 			errs <- err
-		}()
+		}(i)
 	}
 	for i := 0; i < n; i++ {
 		err := <-errs

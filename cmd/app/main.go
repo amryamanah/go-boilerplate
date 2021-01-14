@@ -5,6 +5,8 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
+
 	store "github.com/amryamanah/go-boilerplate/internal/store/sqlc"
 	"github.com/amryamanah/go-boilerplate/pkg/application"
 	"github.com/amryamanah/go-boilerplate/pkg/client"
@@ -12,7 +14,6 @@ import (
 	"github.com/amryamanah/go-boilerplate/pkg/exithandler"
 	"github.com/amryamanah/go-boilerplate/pkg/logger"
 	_ "github.com/lib/pq"
-	"log"
 )
 
 func main() {
