@@ -3,8 +3,9 @@
 package store
 
 import (
-	"database/sql"
 	"time"
+
+	"gopkg.in/guregu/null.v4/zero"
 )
 
 type Account struct {
@@ -33,11 +34,11 @@ type Transfer struct {
 }
 
 type User struct {
-	ID                int64          `json:"id"`
-	FullName          sql.NullString `json:"full_name"`
-	Email             string         `json:"email"`
-	Phone             sql.NullString `json:"phone"`
-	HashedPassword    string         `json:"hashed_password"`
-	PasswordChangedAt time.Time      `json:"password_changed_at"`
-	CreatedAt         time.Time      `json:"created_at"`
+	ID                int64       `json:"id"`
+	FullName          zero.String `json:"full_name"`
+	Email             string      `json:"email"`
+	Phone             zero.String `json:"phone"`
+	HashedPassword    string      `json:"hashed_password"`
+	PasswordChangedAt time.Time   `json:"password_changed_at"`
+	CreatedAt         time.Time   `json:"created_at"`
 }

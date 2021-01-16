@@ -9,3 +9,7 @@ packages:
     emit_prepared_queries: false
     emit_interface: true
     emit_exact_table_names: false
+overrides:
+  - nullable: true
+    db_type: "pg_catalog.varchar"
+    go_type: "gopkg.in/guregu/null.v4/zero.String"

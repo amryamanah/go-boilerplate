@@ -15,5 +15,6 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/twinj/uuid v1.0.0
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
+	gopkg.in/guregu/null.v4 v4.0.0
 	gopkg.in/stretchr/testify.v1 v1.2.2 // indirect
 )

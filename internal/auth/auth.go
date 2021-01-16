@@ -3,8 +3,8 @@ package auth
 import (
 	"context"
 	"fmt"
-	"github.com/amryamanah/go-boilerplate/pkg/client"
 	"github.com/amryamanah/go-boilerplate/pkg/config"
+	"github.com/amryamanah/go-boilerplate/pkg/redis"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/twinj/uuid"
 	"net/http"
@@ -14,12 +14,12 @@ import (
 )
 
 type TokenDetails struct {
-	AccessToken string
+	AccessToken  string
 	RefreshToken string
-	AccessUuid string
-	RefreshUuid string
-	AtExpires int64
-	RtExpires int64
+	AccessUuid   string
+	RefreshUuid  string
+	AtExpires    int64
+	RtExpires    int64
 }
 
 func CreateToken(userid int64) (*TokenDetails, error) {
@@ -61,11 +61,11 @@ func CreateAuth(ctx context.Context, userid int64, td *TokenDetails) error {
 	rt := time.Unix(td.RtExpires, 0)
 	now := time.Now()
 
-	errAccess := client.RedisClient.Set(ctx, td.AccessUuid, strconv.Itoa(int(userid)), at.Sub(now)).Err()
+	errAccess := redis.RedisClient.Set(ctx, td.AccessUuid, strconv.Itoa(int(userid)), at.Sub(now)).Err()
 	if errAccess != nil {
 		return errAccess
 	}
-	errRefresh := client.RedisClient.Set(ctx, td.RefreshUuid, strconv.Itoa(int(userid)), rt.Sub(now)).Err()
+	errRefresh := redis.RedisClient.Set(ctx, td.RefreshUuid, strconv.Itoa(int(userid)), rt.Sub(now)).Err()
 	if errRefresh != nil {
 		return errRefresh
 	}
@@ -113,7 +113,7 @@ func TokenValid(r *http.Request) error {
 
 type AccessDetails struct {
 	AccessUuid string
-	UserId   uint64
+	UserId     uint64
 }
 
 func ExtractTokenMetadata(r *http.Request) (*AccessDetails, error) {
@@ -141,7 +141,7 @@ func ExtractTokenMetadata(r *http.Request) (*AccessDetails, error) {
 }
 
 func FetchAuth(ctx context.Context, authD *AccessDetails) (int64, error) {
-	userid, err := client.RedisClient.Get(ctx, authD.AccessUuid).Result()
+	userid, err := redis.RedisClient.Get(ctx, authD.AccessUuid).Result()
 	if err != nil {
 		return 0, err
 	}
@@ -150,7 +150,7 @@ func FetchAuth(ctx context.Context, authD *AccessDetails) (int64, error) {
 }
 
 func DeleteAuth(ctx context.Context, givenUuid string) (int64, error) {
-	deleted, err := client.RedisClient.Del(ctx, givenUuid).Result()
+	deleted, err := redis.RedisClient.Del(ctx, givenUuid).Result()
 	if err != nil {
 		return 0, err
 	}

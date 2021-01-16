@@ -6,9 +6,9 @@ package mockstore
 
 import (
 	context "context"
-	sql "database/sql"
 	store "github.com/amryamanah/go-boilerplate/internal/store/sqlc"
 	gomock "github.com/golang/mock/gomock"
+	zero "gopkg.in/guregu/null.v4/zero"
 	reflect "reflect"
 )
 
@@ -215,7 +215,7 @@ func (mr *MockStoreMockRecorder) GetUserByID(arg0, arg1 interface{}) *gomock.Cal
 }
 
 // GetUserByPhone mocks base method
-func (m *MockStore) GetUserByPhone(arg0 context.Context, arg1 sql.NullString) (store.User, error) {
+func (m *MockStore) GetUserByPhone(arg0 context.Context, arg1 zero.String) (store.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserByPhone", arg0, arg1)
 	ret0, _ := ret[0].(store.User)

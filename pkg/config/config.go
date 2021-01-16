@@ -13,15 +13,15 @@ var (
 )
 
 type config struct {
-	DBUser     string `mapstructure:"DB_USER"`
-	DBPass     string `mapstructure:"DB_PASS"`
-	DBHost     string `mapstructure:"DB_HOST"`
-	DBPort     string `mapstructure:"DB_PORT"`
-	DBName     string `mapstructure:"DB_NAME"`
-	ApiPort    string `mapstructure:"API_PORT"`
+	DBUser           string `mapstructure:"DB_USER"`
+	DBPass           string `mapstructure:"DB_PASS"`
+	DBHost           string `mapstructure:"DB_HOST"`
+	DBPort           string `mapstructure:"DB_PORT"`
+	DBName           string `mapstructure:"DB_NAME"`
+	ApiPort          string `mapstructure:"API_PORT"`
 	AppAccessSecret  string `mapstructure:"APP_ACCESS_SECRET"`
-	AppRefreshSecret  string `mapstructure:"APP_REFRESH_SECRET"`
-	Migrate    string
+	AppRefreshSecret string `mapstructure:"APP_REFRESH_SECRET"`
+	Migrate          string
 }
 
 func LoadConfig(path string) (err error) {

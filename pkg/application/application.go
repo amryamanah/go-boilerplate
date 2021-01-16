@@ -33,7 +33,7 @@ func NewApplication(store store.Store) *Application {
 	router.POST("/logout", app.Logout)
 	router.POST("/token/refresh", app.Refresh)
 
-	router.POST("/users", middleware.TokenAuthMiddleware(), app.CreateUser)
+	router.POST("/users", app.CreateUser)
 	router.GET("/me", middleware.TokenAuthMiddleware(), app.GetMe)
 	router.POST("/accounts", app.CreateAccount)
 	router.GET("/accounts/:id", app.GetAccount)

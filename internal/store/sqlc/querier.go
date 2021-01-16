@@ -4,7 +4,8 @@ package store
 
 import (
 	"context"
-	"database/sql"
+
+	"gopkg.in/guregu/null.v4/zero"
 )
 
 type Querier interface {
@@ -20,7 +21,7 @@ type Querier interface {
 	GetTransfer(ctx context.Context, id int64) (Transfer, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id int64) (User, error)
-	GetUserByPhone(ctx context.Context, phone sql.NullString) (User, error)
+	GetUserByPhone(ctx context.Context, phone zero.String) (User, error)
 	ListAccounts(ctx context.Context, arg ListAccountsParams) ([]Account, error)
 	ListEntries(ctx context.Context, arg ListEntriesParams) ([]Entry, error)
 	ListTransfers(ctx context.Context, arg ListTransfersParams) ([]Transfer, error)

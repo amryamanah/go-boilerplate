@@ -5,7 +5,8 @@ package store
 
 import (
 	"context"
-	"database/sql"
+
+	"gopkg.in/guregu/null.v4/zero"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -21,10 +22,10 @@ RETURNING id, full_name, email, phone, hashed_password, password_changed_at, cre
 `
 
 type CreateUserParams struct {
-	Email          string         `json:"email"`
-	Phone          sql.NullString `json:"phone"`
-	FullName       sql.NullString `json:"full_name"`
-	HashedPassword string         `json:"hashed_password"`
+	Email          string      `json:"email"`
+	Phone          zero.String `json:"phone"`
+	FullName       zero.String `json:"full_name"`
+	HashedPassword string      `json:"hashed_password"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -92,7 +93,7 @@ SELECT id, full_name, email, phone, hashed_password, password_changed_at, create
 WHERE phone = $1 LIMIT 1
 `
 
-func (q *Queries) GetUserByPhone(ctx context.Context, phone sql.NullString) (User, error) {
+func (q *Queries) GetUserByPhone(ctx context.Context, phone zero.String) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUserByPhone, phone)
 	var i User
 	err := row.Scan(

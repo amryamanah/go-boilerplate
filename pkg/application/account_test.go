@@ -20,14 +20,14 @@ import (
 func TestGetAccountAPI(t *testing.T) {
 	account := randomAccount()
 
-	testCases := []struct{
-		name string
-		accountID int64
-		buildStubs func(store *mockstore.MockStore)
+	testCases := []struct {
+		name          string
+		accountID     int64
+		buildStubs    func(store *mockstore.MockStore)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
-			name: "OK",
+			name:      "OK",
 			accountID: account.ID,
 			buildStubs: func(mockStore *mockstore.MockStore) {
 				mockStore.EXPECT().
@@ -41,7 +41,7 @@ func TestGetAccountAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "NotFound",
+			name:      "NotFound",
 			accountID: account.ID,
 			buildStubs: func(mockStore *mockstore.MockStore) {
 				mockStore.EXPECT().
@@ -54,7 +54,7 @@ func TestGetAccountAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "InternalError",
+			name:      "InternalError",
 			accountID: account.ID,
 			buildStubs: func(mockStore *mockstore.MockStore) {
 				mockStore.EXPECT().
@@ -67,7 +67,7 @@ func TestGetAccountAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "InvalidID",
+			name:      "InvalidID",
 			accountID: 0,
 			buildStubs: func(mockStore *mockstore.MockStore) {
 				mockStore.EXPECT().
@@ -106,23 +106,23 @@ func TestGetAccountAPI(t *testing.T) {
 func TestCreateAccountAPI(t *testing.T) {
 	account := randomAccount()
 
-	testCases := []struct{
-		name string
-		body gin.H
-		buildStubs func(mockStore *mockstore.MockStore)
+	testCases := []struct {
+		name          string
+		body          gin.H
+		buildStubs    func(mockStore *mockstore.MockStore)
 		checkResponse func(recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name: "OK",
 			body: gin.H{
-				"owner": account.Owner,
+				"owner":    account.Owner,
 				"currency": account.Currency,
 			},
 			buildStubs: func(mockStore *mockstore.MockStore) {
 				arg := store.CreateAccountParams{
 					Owner:    account.Owner,
-					Currency:  account.Currency,
-					Balance: 0,
+					Currency: account.Currency,
+					Balance:  0,
 				}
 
 				mockStore.EXPECT().
@@ -138,7 +138,7 @@ func TestCreateAccountAPI(t *testing.T) {
 		{
 			name: "InvalidCurrency",
 			body: gin.H{
-				"owner": account.Owner,
+				"owner":    account.Owner,
 				"currency": "invalid",
 			},
 			buildStubs: func(mockStore *mockstore.MockStore) {
@@ -153,7 +153,7 @@ func TestCreateAccountAPI(t *testing.T) {
 		{
 			name: "InvalidOwner",
 			body: gin.H{
-				"owner": "",
+				"owner":    "",
 				"currency": account.Currency,
 			},
 			buildStubs: func(mockStore *mockstore.MockStore) {
@@ -202,14 +202,14 @@ func TestListAccountAPI(t *testing.T) {
 	}
 
 	type Query struct {
-		pageID int
+		pageID   int
 		pageSize int
 	}
 
-	testCases := []struct{
-		name string
-		query Query
-		buildStubs func(mockStore *mockstore.MockStore)
+	testCases := []struct {
+		name          string
+		query         Query
+		buildStubs    func(mockStore *mockstore.MockStore)
 		checkResponse func(recorder *httptest.ResponseRecorder)
 	}{
 		{
@@ -220,7 +220,7 @@ func TestListAccountAPI(t *testing.T) {
 			},
 			buildStubs: func(mockStore *mockstore.MockStore) {
 				arg := store.ListAccountsParams{
-					Limit: int32(n),
+					Limit:  int32(n),
 					Offset: 0,
 				}
 
@@ -308,12 +308,11 @@ func TestListAccountAPI(t *testing.T) {
 	}
 }
 
-
 func randomAccount() store.Account {
 	return store.Account{
-		ID: util.RandomInt(1, 1000),
-		Owner: 1,
-		Balance: util.RandomMoney(),
+		ID:       util.RandomInt(1, 1000),
+		Owner:    1,
+		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
 }
@@ -328,7 +327,7 @@ func requireBodyMatchAccount(t *testing.T, body *bytes.Buffer, account store.Acc
 	require.Equal(t, account, gotAccount)
 }
 
-func requireBodyMatchAccounts(t *testing.T, body *bytes.Buffer, accounts []store.Account)  {
+func requireBodyMatchAccounts(t *testing.T, body *bytes.Buffer, accounts []store.Account) {
 	data, err := ioutil.ReadAll(body)
 	require.NoError(t, err)
 
@@ -337,5 +336,3 @@ func requireBodyMatchAccounts(t *testing.T, body *bytes.Buffer, accounts []store
 	require.NoError(t, err)
 	require.Equal(t, accounts, gotAccounts)
 }
-
-

@@ -2,24 +2,18 @@ package store
 
 import (
 	"context"
-	"database/sql"
 	"github.com/amryamanah/go-boilerplate/pkg/util"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/guregu/null.v4/zero"
 	"testing"
 	"time"
 )
 
 func createRandomUser(t *testing.T) User {
 	arg := CreateUserParams{
-		Email:          util.RandomOwner()+"@test.com",
-		Phone:          sql.NullString{
-			String: util.RandomOwner(),
-			Valid: true,
-		},
-		FullName:       sql.NullString{
-			String: util.RandomOwner(),
-			Valid: true,
-		},
+		Email:          util.RandomOwner() + "@test.com",
+		Phone:          zero.StringFrom(util.RandomString(10)),
+		FullName:       zero.StringFrom(util.RandomOwner()),
 		HashedPassword: "",
 	}
 

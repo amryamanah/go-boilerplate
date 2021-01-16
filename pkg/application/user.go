@@ -3,6 +3,7 @@ package application
 import (
 	"database/sql"
 	"fmt"
+	"gopkg.in/guregu/null.v4/zero"
 	"net/http"
 	"time"
 
@@ -42,23 +43,16 @@ func (a *Application) CreateUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 		return
 	}
-	fmt.Println(req)
 
 	arg := store.CreateUserParams{
 		Email:          req.Email,
 		HashedPassword: hashedPassword,
 	}
 	if req.FullName != "" {
-		arg.FullName = sql.NullString{
-			String: req.FullName,
-			Valid:  true,
-		}
+		arg.FullName = zero.StringFrom(req.FullName)
 	}
 	if req.Phone != "" {
-		arg.Phone = sql.NullString{
-			String: req.Phone,
-			Valid:  true,
-		}
+		arg.Phone = zero.StringFrom(req.Phone)
 	}
 
 	user, err := a.Store.CreateUser(ctx, arg)
